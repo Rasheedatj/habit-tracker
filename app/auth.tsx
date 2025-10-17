@@ -1,3 +1,5 @@
+import { useAuth } from '@/lib/context/auth-context';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { Button, Text, TextInput, useTheme } from 'react-native-paper';
@@ -8,6 +10,8 @@ const AuthScreen = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const theme = useTheme();
+  const router = useRouter();
+  const { signIn, signUp } = useAuth();
 
   const handleAuth = async () => {
     if (!email && !password) {
@@ -17,8 +21,16 @@ const AuthScreen = () => {
     if (password.length < 6) {
       return setError('Password must not be less than 6 characters');
     }
-
     setError('');
+
+    if (isSignUp) {
+      const res = await signUp(email, password);
+      if (res) return setError(res);
+    } else {
+      const res = await signIn(email, password);
+      if (res) return setError(res);
+      router.push('/');
+    }
   };
 
   const handleSwitch = () => {
@@ -47,7 +59,7 @@ const AuthScreen = () => {
           style={styles.input}
           label='Password'
           autoCapitalize='none'
-          keyboardType='email-address'
+          secureTextEntry
           placeholder='******'
           mode='outlined'
           onChangeText={setPassword}
