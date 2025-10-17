@@ -1,35 +1,41 @@
+import AntDesign from '@expo/vector-icons/AntDesign';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Tabs } from 'expo-router';
 import React from 'react';
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
+const TabsLayout = () => {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
+        tabBarActiveBackgroundColor: 'coral',
+        tabBarActiveTintColor: 'white',
+      }}
+    >
       <Tabs.Screen
-        name="index"
+        name='index'
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color, focused }) => {
+            return focused ? (
+              <FontAwesome5 name='home' size={24} color={color} />
+            ) : (
+              <AntDesign name='home' size={24} color={color} />
+            );
+          },
         }}
-      />
+      ></Tabs.Screen>
       <Tabs.Screen
-        name="explore"
+        name='login'
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Login',
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name='login' size={24} color={color} />
+          ),
         }}
-      />
+      ></Tabs.Screen>
     </Tabs>
   );
-}
+};
+
+export default TabsLayout;

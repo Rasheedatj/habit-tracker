@@ -1,24 +1,38 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { Stack, useRouter } from 'expo-router';
+import { ReactNode, useEffect, useState } from 'react';
+import { PaperProvider } from 'react-native-paper';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+function RouteGaurd({ children }: { children: ReactNode }) {
+  const [isMounted, setIsMounted] = useState(false);
+  const isAuthenticated = false;
+  const router = useRouter();
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isMounted && !isAuthenticated) {
+      router.replace('/auth');
+    }
+  }, [isAuthenticated, router, isMounted]);
+
+  if (!isMounted) return null;
+
+  return <>{children}</>;
+}
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <PaperProvider>
+      <RouteGaurd>
+        <Stack>
+          <Stack.Screen
+            name='(tabs)'
+            options={{ headerShown: false }}
+          ></Stack.Screen>
+        </Stack>
+      </RouteGaurd>
+    </PaperProvider>
   );
 }
