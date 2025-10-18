@@ -36,6 +36,7 @@ const AuthScreen = () => {
   const handleSwitch = () => {
     setIsSignUp((prev) => !prev);
   };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

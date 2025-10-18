@@ -1,6 +1,16 @@
+import { DATABASE_ID, databases, HABITS_ID } from '@/lib/appwrite';
+import { useAuth } from '@/lib/context/auth-context';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Button, SegmentedButtons, TextInput } from 'react-native-paper';
+import { ID } from 'react-native-appwrite';
+import {
+  Button,
+  SegmentedButtons,
+  Text,
+  TextInput,
+  useTheme,
+} from 'react-native-paper';
 
 const FREQUENCIES = ['Daily', 'Weekly', 'Monthly'];
 type Frequncy = (typeof FREQUENCIES)[number];
@@ -9,8 +19,31 @@ const AddHabitScreen = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [frequency, setFrequency] = useState<Frequncy>('daily');
+  const [error, setError] = useState('');
+  const router = useRouter();
+  const theme = useTheme();
 
-  const handleSubmit = async () => [];
+  const { user } = useAuth();
+
+  const handleSubmit = async () => {
+    if (!user) return;
+    try {
+      await databases.createDocument(DATABASE_ID, HABITS_ID, ID.unique(), {
+        user_id: user.$id,
+        title,
+        description,
+        frequency,
+        streak_count: 10,
+        last_completed: new Date().toISOString(),
+      });
+
+      router.back();
+    } catch (error) {
+      if (error instanceof Error) return setError(error.message);
+
+      return 'There was an error creating your new habit';
+    }
+  };
   return (
     <View style={styles.container}>
       <TextInput
@@ -35,9 +68,15 @@ const AddHabitScreen = () => {
         />
       </View>
 
-      <Button mode='contained' disabled={!title || !description}>
+      <Button
+        mode='contained'
+        onPress={handleSubmit}
+        disabled={!title || !description}
+      >
         Add Habit
       </Button>
+
+      {error && <Text style={{ color: theme.colors.error }}>{error}</Text>}
     </View>
   );
 };
