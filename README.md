@@ -106,7 +106,7 @@ npm run ios
 
 ## 📸 Screenshots
 
-![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
+![App Screenshot](/public/habit_tracker_home.png)
 
 ## 👩🏾‍💻 About the Developer
 
