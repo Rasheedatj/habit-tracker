@@ -1,50 +1,125 @@
-# Welcome to your Expo app 👋
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+# 🧠 HABIT TRACKER
+A modern, cross-platform mobile app built with React Native (Expo) that helps users build consistent habits, track progress, and view daily streaks, all powered by Appwrite for authentication and database management.
 
-## Get started
+## ✨ Features
 
-1. Install dependencies
+- 🔐 Secure Authentication – User sign-up and login via Appwrite
 
-   ```bash
-   npm install
-   ```
+- 🗓 Create & Manage Habits – Add, update, and delete your daily habits
 
-2. Start the app
+- ✅ Mark as Complete – Track completed habits in real-time
 
-   ```bash
-   npx expo start
-   ```
+- 🔥 Streak View – Visualize your consistency and daily progress
 
-In the output, you'll find options to open the app in a
+- 📱 Responsive UI – Built with React Native Paper for a polished look
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## 🛠 Tech Stack
 
-## Get a fresh project
+**Framework:** Expo (React Native)
 
-When you're ready, run:
+**UI Library:** React Native Paper
 
-```bash
-npm run reset-project
+**Navigation:** Expo Router
+
+**Backend & Auth:** Appwrite
+
+**Language:** TypeScript
+
+
+## 🧩 Project Structure
+
+```
+habit-tracker/
+│
+├── app/
+│   ├── auth.tsx          # Login & Signup screens
+│   ├── (tabs)/           # Main app screens (Today's Habits, Streaks, Add Habit)
+│   ├── _layout.tsx       # Tabs Router layout
+│   └── index.tsx         # Root route
+│   └── _layout.tsx         # Root layout
+│   
+├── lib/
+│   ├── appwrite.ts       # Appwrite client 
+│   ├── types/      # types 
+│   ├── database.types.ts      # database types 
+│   ├── context/      # state management 
+│   ├── auth-context.tsx      # Auth state management 
+│
+├── package.json
+└── README.md 
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
-## Learn more
 
-To learn more about developing your project with Expo, look at the following resources:
+## ⚙️ Installation & Setup
+1️⃣ Clone the repo
+```
+git clone https://github.com/Rasheedatj/habit-tracker.git
+cd habit-tracker
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+2️⃣ Install dependencies
+```
+npm install
+# or
+yarn install
+```
 
-## Join the community
+3️⃣ Configure Appwrite
 
-Join our community of developers creating universal apps.
+- Create a new Appwrite project from your console
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- Set up Authentication (Email/Password)
+
+- Create a Database with a collection named habits
+
+- Add the following attributes:
+
+- title → string
+
+- description → string
+
+- completed → boolean
+
+- user_id → string
+
+- frequency → string
+
+- last_completed → string
+
+
+
+Copy your project endpoint and credentials into an .env file:
+
+```
+APPWRITE_ENDPOINT=https://cloud.appwrite.io/v1
+APPWRITE_PROJECT_ID=your_project_id
+APPWRITE_DATABASE_ID=your_database_id
+APPWRITE_COLLECTION_ID=habits
+```
+
+4️⃣ Run the app
+```
+npm run ios
+```
+## 📸 Screenshots 
+
+![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
+
+
+## 👩🏾‍💻 About the Developer
+
+Rasheedat Jinadu: A mobile and web Frontend Engineer. I help founders, startups, enterprise and business owners build the ideal websites that Attract Users, Keep Users, and Generate Sales
+
+
+[![portfolio](https://img.shields.io/badge/my_portfolio-000?style=for-the-badge&logo=ko-fi&logoColor=white)](https://rasheedatj.vercel.app/)
+
+[![🔗 Connect with me on LinkedIn](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/rashedat-jinadu)
+
+
+## 📝 License
+
+This project is open-source under the [MIT License.](https://choosealicense.com/licenses/mit/)
+
