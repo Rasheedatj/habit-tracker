@@ -33,7 +33,7 @@ const AddHabitScreen = () => {
         title,
         description,
         frequency,
-        streak_count: 10,
+        streak_count: 0,
         last_completed: new Date().toISOString(),
       });
 

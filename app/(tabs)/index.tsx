@@ -2,27 +2,34 @@ import {
   client,
   DATABASE_ID,
   databases,
+  HABITS_COMPLETIONS_ID,
   HABITS_ID,
   RealTimeResponse,
 } from '@/lib/appwrite';
 import { useAuth } from '@/lib/context/auth-context';
-import { Habit } from '@/types/databases.type';
+import { CompletedHabit, Habit } from '@/types/databases.type';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { Query } from 'react-native-appwrite';
+import { ID, Query } from 'react-native-appwrite';
+import { Swipeable } from 'react-native-gesture-handler';
 import { Button, Surface, Text } from 'react-native-paper';
 
 export default function Index() {
   const { user, signOut } = useAuth();
   const [habits, setHabits] = useState<Habit[]>();
+  const [completedHabits, setCompletedHabits] = useState<string[]>();
+  const swipeableRefs = useRef<{ [key: string]: Swipeable | null }>({});
+
+  const isHabitCompleted = (habitId: string) =>
+    completedHabits?.includes(habitId);
 
   useEffect(() => {
     if (user) {
-      const channel = `databases.${DATABASE_ID}.collections.${HABITS_ID}.documents`;
+      const habitsChannel = `databases.${DATABASE_ID}.collections.${HABITS_ID}.documents`;
       const habitSubscription = client.subscribe(
-        channel,
+        habitsChannel,
         (response: RealTimeResponse) => {
           if (
             response.events.includes(
@@ -46,8 +53,26 @@ export default function Index() {
         }
       );
 
+      const completionsChannel = `databases.${DATABASE_ID}.collections.${HABITS_COMPLETIONS_ID}.documents`;
+      const completionsSubscription = client.subscribe(
+        completionsChannel,
+        (response: RealTimeResponse) => {
+          if (
+            response.events.includes(
+              'databases.*.collections.*.documents.*.create'
+            )
+          ) {
+            fetchCompletedHabits();
+          }
+        }
+      );
+
       fetchHabits();
-      return () => habitSubscription();
+      fetchCompletedHabits();
+      return () => {
+        habitSubscription();
+        completionsSubscription();
+      };
     }
   }, [user]);
 
@@ -61,6 +86,78 @@ export default function Index() {
       console.error(error);
     }
   };
+
+  const fetchCompletedHabits = async () => {
+    try {
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        HABITS_COMPLETIONS_ID,
+        [Query.equal('user_id', user?.$id ?? '')]
+      );
+      const completions = response.documents as CompletedHabit[];
+      setCompletedHabits(completions.map((c) => c.habit_id));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const renderRightActions = (habitId: string) => (
+    <View style={styles.swipeActionRight}>
+      {isHabitCompleted(habitId) ? (
+        <Text style={{ color: '#fff' }}>Completed</Text>
+      ) : (
+        <MaterialCommunityIcons
+          name='check-circle-outline'
+          size={32}
+          color={'#fff'}
+        />
+      )}
+    </View>
+  );
+
+  const handleDeleteHabit = async (id: string) => {
+    try {
+      await databases.deleteDocument(DATABASE_ID, HABITS_ID, id);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleCompleteHabit = async (id: string) => {
+    if (!user || completedHabits?.includes(id)) return;
+    try {
+      const currentDate = new Date().toISOString();
+      await databases.createDocument(
+        DATABASE_ID,
+        HABITS_COMPLETIONS_ID,
+        ID.unique(),
+        {
+          habit_id: id,
+          user_id: user?.$id,
+          completed_at: currentDate,
+        }
+      );
+
+      const habit = habits?.find((h) => h.$id === id);
+      if (!habit) return;
+      await databases.updateDocument(DATABASE_ID, HABITS_ID, id, {
+        last_completed: currentDate,
+        streak_count: habit.streak_count + 1,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const renderLeftActions = () => (
+    <View style={styles.swipeActionLeft}>
+      <MaterialCommunityIcons
+        name='trash-can-outline'
+        size={32}
+        color={'#fff'}
+      />
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -86,35 +183,59 @@ export default function Index() {
         ) : (
           habits?.map((habit) => {
             return (
-              <Surface elevation={0} key={habit.$id} style={styles.card}>
-                <View style={styles.cardContent}>
-                  <Text style={styles.cardTitle}>{habit.title}</Text>
-                  <Text style={styles.cardDescription}>
-                    {' '}
-                    {habit.description}
-                  </Text>
+              <Swipeable
+                key={habit.$id}
+                ref={(ref) => {
+                  swipeableRefs.current[habit.$id] = ref;
+                }}
+                overshootLeft={false}
+                overshootRight={false}
+                renderLeftActions={renderLeftActions}
+                renderRightActions={() => renderRightActions(habit.$id)}
+                onSwipeableOpen={(Directions) => {
+                  if (Directions === 'left') {
+                    handleDeleteHabit(habit.$id);
+                  } else if (Directions === 'right') {
+                    handleCompleteHabit(habit.$id);
+                  }
+                }}
+              >
+                <Surface
+                  elevation={0}
+                  style={[
+                    styles.card,
+                    isHabitCompleted(habit.$id) && styles.cardCompleted,
+                  ]}
+                >
+                  <View style={styles.cardContent}>
+                    <Text style={styles.cardTitle}>{habit.title}</Text>
+                    <Text style={styles.cardDescription}>
+                      {' '}
+                      {habit.description}
+                    </Text>
 
-                  <View style={styles.cardFooter}>
-                    <View style={styles.streakBadge}>
-                      <MaterialCommunityIcons
-                        name='fire'
-                        size={18}
-                        color={'#ff9800'}
-                      />
-                      <Text style={styles.streakText}>
-                        {habit.streak_count}{' '}
-                        {habit.streak_count > 0 ? 'days' : 'day'} streak count
-                      </Text>
-                    </View>
+                    <View style={styles.cardFooter}>
+                      <View style={styles.streakBadge}>
+                        <MaterialCommunityIcons
+                          name='fire'
+                          size={18}
+                          color={'#ff9800'}
+                        />
+                        <Text style={styles.streakText}>
+                          {habit.streak_count}{' '}
+                          {habit.streak_count > 0 ? 'days' : 'day'} streak count
+                        </Text>
+                      </View>
 
-                    <View style={styles.frequencyBadge}>
-                      <Text style={styles.frequencyText}>
-                        {habit.frequency}
-                      </Text>
+                      <View style={styles.frequencyBadge}>
+                        <Text style={styles.frequencyText}>
+                          {habit.frequency}
+                        </Text>
+                      </View>
                     </View>
                   </View>
-                </View>
-              </Surface>
+                </Surface>
+              </Swipeable>
             );
           })
         )}
@@ -160,8 +281,14 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
+  cardCompleted: {
+    backgroundColor: '#',
+    opacity: 0.6,
+    pointerEvents: 'none',
+  },
   cardContent: {
     padding: 20,
+    pointerEvents: 'none',
   },
   cardTitle: {
     fontSize: 20,
@@ -206,5 +333,26 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 14,
     textTransform: 'capitalize',
+  },
+
+  swipeActionLeft: {
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    flex: 1,
+    backgroundColor: '#e53935',
+    borderRadius: 18,
+    marginBottom: 18,
+    marginTop: 2,
+    paddingLeft: 16,
+  },
+  swipeActionRight: {
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    flex: 1,
+    backgroundColor: '#4caf50',
+    borderRadius: 18,
+    marginBottom: 18,
+    marginTop: 2,
+    paddingRight: 16,
   },
 });

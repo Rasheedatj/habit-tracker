@@ -8,3 +8,9 @@ export interface Habit extends Models.DefaultDocument {
   streak_count: number;
   last_completed: string;
 }
+
+export interface CompletedHabit extends Models.DefaultDocument {
+  habit_id: string;
+  user_id: string;
+  completed_at: string;
+}
