@@ -89,10 +89,15 @@ export default function Index() {
 
   const fetchCompletedHabits = async () => {
     try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
       const response = await databases.listDocuments(
         DATABASE_ID,
         HABITS_COMPLETIONS_ID,
-        [Query.equal('user_id', user?.$id ?? '')]
+        [
+          Query.equal('user_id', user?.$id ?? ''),
+          Query.greaterThanEqual('completed_at', today.toISOString()),
+        ]
       );
       const completions = response.documents as CompletedHabit[];
       setCompletedHabits(completions.map((c) => c.habit_id));

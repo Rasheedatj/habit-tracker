@@ -33,7 +33,7 @@ const TabsLayout = () => {
           ),
         }}
       ></Tabs.Screen>
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name='streaks'
         options={{
           title: 'Streaks',
@@ -45,7 +45,7 @@ const TabsLayout = () => {
             />
           ),
         }}
-      ></Tabs.Screen>
+      ></Tabs.Screen> */}
 
       <Tabs.Screen
         name='add-habit'
