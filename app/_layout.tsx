@@ -2,8 +2,9 @@ import AuthProvider, { useAuth } from '@/lib/context/auth-context';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { ReactNode, useEffect } from 'react';
 import { PaperProvider } from 'react-native-paper';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
+import { StatusBar } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 function RouteGaurd({ children }: { children: ReactNode }) {
@@ -29,14 +30,21 @@ export default function RootLayout() {
       <AuthProvider>
         <PaperProvider>
           <SafeAreaProvider>
-            <RouteGaurd>
-              <Stack>
-                <Stack.Screen
-                  name='(tabs)'
-                  options={{ headerShown: false }}
-                ></Stack.Screen>
-              </Stack>
-            </RouteGaurd>
+            <SafeAreaView style={{ flex: 1 }}>
+              <RouteGaurd>
+                <StatusBar barStyle={'dark-content'} backgroundColor={'red'} />
+                <Stack>
+                  <Stack.Screen
+                    name='(tabs)'
+                    options={{ headerShown: false }}
+                  ></Stack.Screen>
+                  <Stack.Screen
+                    name='auth'
+                    options={{ headerShown: false }}
+                  ></Stack.Screen>
+                </Stack>
+              </RouteGaurd>
+            </SafeAreaView>
           </SafeAreaProvider>
         </PaperProvider>
       </AuthProvider>
