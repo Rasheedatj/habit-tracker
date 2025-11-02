@@ -3,7 +3,7 @@
     "name": "habit-tracker",
     "slug": "habit-tracker",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "habittracker",
     "userInterfaceStyle": "automatic",

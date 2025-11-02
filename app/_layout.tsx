@@ -1,53 +1,49 @@
-import AuthProvider, { useAuth } from '@/lib/context/auth-context';
-import { Stack, useRouter, useSegments } from 'expo-router';
-import { ReactNode, useEffect } from 'react';
-import { PaperProvider } from 'react-native-paper';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-
+import { CATEGORIES } from '@/data/dummy-data';
+import { Stack } from 'expo-router';
 import { StatusBar } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-
-function RouteGaurd({ children }: { children: ReactNode }) {
-  const { user, isLoading } = useAuth();
-  const router = useRouter();
-  const segments = useSegments();
-
-  useEffect(() => {
-    const isAuthGroup = segments[0] === 'auth';
-    if (!user && !isAuthGroup && !isLoading) {
-      router.replace('/auth');
-    } else if (user && isAuthGroup && !isLoading) {
-      router.push('/');
-    }
-  }, [user, router, segments, isLoading]);
-
-  return <>{children}</>;
-}
 
 export default function RootLayout() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <AuthProvider>
-        <PaperProvider>
-          <SafeAreaProvider>
-            <SafeAreaView style={{ flex: 1 }}>
-              <RouteGaurd>
-                <StatusBar barStyle={'dark-content'} backgroundColor={'red'} />
-                <Stack>
-                  <Stack.Screen
-                    name='(tabs)'
-                    options={{ headerShown: false }}
-                  ></Stack.Screen>
-                  <Stack.Screen
-                    name='auth'
-                    options={{ headerShown: false }}
-                  ></Stack.Screen>
-                </Stack>
-              </RouteGaurd>
-            </SafeAreaView>
-          </SafeAreaProvider>
-        </PaperProvider>
-      </AuthProvider>
-    </GestureHandlerRootView>
+    // <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+    <>
+      <StatusBar barStyle={'light-content'} backgroundColor={'red'} />
+
+      <Stack
+        screenOptions={{
+          contentStyle: { backgroundColor: '#352f25' },
+          headerStyle: {
+            backgroundColor: '#351401',
+          },
+          headerTintColor: 'white',
+        }}
+      >
+        <Stack.Screen
+          name='index'
+          options={{
+            title: 'Home',
+          }}
+        />
+
+        <Stack.Screen
+          name='(drawer)'
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
+          name='mealsOverview/[categoryId]'
+          options={({ route, navigation }) => {
+            const categoryId = (route.params as { categoryId: string })
+              .categoryId;
+            return {
+              title: CATEGORIES.find((cat) => cat.id === categoryId)?.title,
+            };
+          }}
+        />
+        <Stack.Screen name='[mealId]' />
+      </Stack>
+    </>
+    // </SafeAreaView>
   );
 }
