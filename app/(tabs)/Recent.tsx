@@ -1,20 +1,25 @@
 import ExpenseOutput from '@/components/expenseOutput/ExpenseOutput';
-import { expenses } from '@/data/expense';
+import { RootState } from '@/store/redux/store';
 import { commonStyles } from '@/utils/globalStyles';
 import React from 'react';
 import { View } from 'react-native';
+import { useSelector } from 'react-redux';
 
 const RecentScreen = () => {
-  const isWithing7days = (date: Date) => {
+  const { expenses } = useSelector((state: RootState) => state.expenses);
+  const isWithin7days = (date: string) => {
+    const formattedDate = new Date(date);
     const today = new Date();
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(today.getDate() - 7);
 
-    return date >= sevenDaysAgo && date <= today;
+    return formattedDate >= sevenDaysAgo && formattedDate <= today;
   };
 
+  console.log(isWithin7days('2025-10-31'));
+
   const recentExpenses = expenses.filter(
-    (item) => isWithing7days(item.date) === true
+    (item) => isWithin7days(item.date) === true
   );
 
   return (

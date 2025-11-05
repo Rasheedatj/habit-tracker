@@ -22,7 +22,7 @@ const ExpensesItem = ({ expense }: { expense: ExpenseProps }) => {
     >
       <View>
         <Text style={styles.title}>{expense.title}</Text>
-        <Text style={styles.date}>{expense.date.toDateString()}</Text>
+        <Text style={styles.date}>{new Date(expense.date).toDateString()}</Text>
       </View>
       <View style={styles.price}>
         <Text style={styles.priceText}>${expense.amount}</Text>

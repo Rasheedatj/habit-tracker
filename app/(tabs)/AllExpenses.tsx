@@ -1,11 +1,14 @@
 import ExpensesItem from '@/components/expenseOutput/ExpensesItem';
 import Summary from '@/components/expenseOutput/Summary';
-import { expenses } from '@/data/expense';
+import { RootState } from '@/store/redux/store';
 import { commonStyles } from '@/utils/globalStyles';
 import React from 'react';
 import { FlatList, View } from 'react-native';
+import { useSelector } from 'react-redux';
 
 const AllExpensesScreen = () => {
+  const { expenses } = useSelector((state: RootState) => state.expenses);
+
   return (
     <View style={commonStyles.rootContainer}>
       <Summary

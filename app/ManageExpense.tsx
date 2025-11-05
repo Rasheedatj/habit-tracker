@@ -1,9 +1,11 @@
 import Button from '@/components/Button';
 import IconButton from '@/components/IconButton';
+import { removeExpense } from '@/store/redux/expenses';
 import { appColors } from '@/utils/globalStyles';
 import { useGlobalSearchParams, useNavigation } from 'expo-router';
 import React, { useLayoutEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useDispatch } from 'react-redux';
 
 const ManageExpenseScreen = () => {
   const navigation = useNavigation();
@@ -11,6 +13,7 @@ const ManageExpenseScreen = () => {
     mode: 'add' | 'edit';
     id?: string;
   }>();
+  const dispatch = useDispatch();
 
   const isEditing = mode === 'edit';
 
@@ -27,10 +30,13 @@ const ManageExpenseScreen = () => {
   const cancelHandler = () => {
     closeModal();
   };
+
   const confirmHandler = () => {
     closeModal();
   };
+
   const deleteHandler = () => {
+    dispatch(removeExpense({ id }));
     closeModal();
   };
 
