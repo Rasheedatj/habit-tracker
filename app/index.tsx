@@ -9,6 +9,9 @@ const index = () => {
       <Link href={'/categoriesScreen'} asChild>
         <Button title='Go to categories' />
       </Link>
+      {/* <Link href={'/XPractice'} asChild>
+        <Button title='Go to Practice' />
+      </Link> */}
     </View>
   );
 };

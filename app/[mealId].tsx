@@ -2,32 +2,48 @@ import IconButton from '@/components/IconButton';
 import List from '@/components/List';
 import MealDetails from '@/components/MealDetails';
 import { MEALS } from '@/data/dummy-data';
+import { addFavourite, removeFavourite } from '@/store/redux/favourites';
+// eslint-disable-next-line import/no-unresolved
+import { RootState } from '@/store/redux/store';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import React, { useLayoutEffect } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 
 const SingleMealScreen = () => {
+  const { favourites } = useSelector(
+    (state: RootState) => state.favouriteMeals
+  );
+  const dispatch = useDispatch();
   const navigation = useNavigation();
   const { mealId } = useLocalSearchParams<{ mealId: string }>();
   const meal = MEALS.find((meal) => meal.id === mealId);
-
-  const handleIconPress = () => {};
+  const mealIsFavourite = favourites.includes(mealId);
+  // const { addFavourite, favourites } = useFavourite();
 
   useLayoutEffect(() => {
+    const handleIconPress = () => {
+      if (mealIsFavourite) {
+        dispatch(removeFavourite({ id: mealId }));
+      } else {
+        dispatch(addFavourite({ id: mealId }));
+      }
+    };
+
     navigation.setOptions({
       title: meal?.title,
       headerRight: () => {
         return (
           <IconButton
             onPress={handleIconPress}
-            icon={'star'}
-            size={32}
-            color='red'
+            icon={favourites.includes(mealId) ? 'star' : 'star-outline'}
+            size={28}
+            color='#ccc'
           />
         );
       },
     });
-  }, [meal, navigation]);
+  }, [meal, navigation, mealId, dispatch, favourites, mealIsFavourite]);
 
   return (
     <ScrollView
