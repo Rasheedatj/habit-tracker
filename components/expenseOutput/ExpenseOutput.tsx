@@ -7,7 +7,10 @@ import Summary from './Summary';
 const ExpenseOutput = ({ expenses }: { expenses: ExpenseProps[] }) => {
   return (
     <View>
-      <Summary periodName='Last 7 days' amount={134.53} />
+      <Summary
+        periodName='Last 7 days'
+        amount={expenses.reduce((a, b) => a + b.amount, 0)}
+      />
 
       <FlatList
         data={expenses}

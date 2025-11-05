@@ -1,6 +1,6 @@
 import Button from '@/components/Button';
 import IconButton from '@/components/IconButton';
-import { removeExpense } from '@/store/redux/expenses';
+import { removeExpense, updateExpense } from '@/store/redux/expenses';
 import { appColors } from '@/utils/globalStyles';
 import { useGlobalSearchParams, useNavigation } from 'expo-router';
 import React, { useLayoutEffect } from 'react';
@@ -31,7 +31,21 @@ const ManageExpenseScreen = () => {
     closeModal();
   };
 
-  const confirmHandler = () => {
+  const updateHandler = () => {
+    closeModal();
+    dispatch(
+      updateExpense({
+        id,
+        newExpense: {
+          title: 'Another bluetooth earbuds',
+          date: '2025-11-02',
+          amount: 200,
+        },
+      })
+    );
+  };
+
+  const addNewHandler = () => {
     closeModal();
   };
 
@@ -46,7 +60,10 @@ const ManageExpenseScreen = () => {
         <Button mode='flat' onPress={cancelHandler} style={styles.button}>
           Cancel
         </Button>
-        <Button onPress={confirmHandler} style={styles.button}>
+        <Button
+          onPress={isEditing ? updateHandler : addNewHandler}
+          style={styles.button}
+        >
           {isEditing ? 'Update' : 'Add'}
         </Button>
       </View>

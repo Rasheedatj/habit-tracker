@@ -2,7 +2,7 @@ import ExpenseOutput from '@/components/expenseOutput/ExpenseOutput';
 import { RootState } from '@/store/redux/store';
 import { commonStyles } from '@/utils/globalStyles';
 import React from 'react';
-import { View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
 const RecentScreen = () => {
@@ -24,9 +24,24 @@ const RecentScreen = () => {
 
   return (
     <View style={commonStyles.rootContainer}>
-      <ExpenseOutput expenses={recentExpenses} />
+      {expenses.length === 0 ? (
+        <Text style={styles.empty}>No expenses yet!</Text>
+      ) : (
+        <ExpenseOutput expenses={recentExpenses} />
+      )}
     </View>
   );
 };
 
 export default RecentScreen;
+
+const styles = StyleSheet.create({
+  empty: {
+    textAlign: 'center',
+    color: 'white',
+    margin: 'auto',
+    marginTop: 30,
+    fontSize: 16,
+    fontWeight: 500,
+  },
+});
