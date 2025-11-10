@@ -16,8 +16,6 @@ const RecentScreen = () => {
     return formattedDate >= sevenDaysAgo && formattedDate <= today;
   };
 
-  console.log(isWithin7days('2025-10-31'));
-
   const recentExpenses = expenses.filter(
     (item) => isWithin7days(item.date) === true
   );

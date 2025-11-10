@@ -1,21 +1,55 @@
 import Button from '@/components/Button';
+import ExpenseForm from '@/components/expenseOutput/ExpenseForm';
 import IconButton from '@/components/IconButton';
-import { removeExpense, updateExpense } from '@/store/redux/expenses';
+import {
+  addExpense,
+  removeExpense,
+  updateExpense,
+} from '@/store/redux/expenses';
+import { RootState } from '@/store/redux/store';
 import { appColors } from '@/utils/globalStyles';
 import { useGlobalSearchParams, useNavigation } from 'expo-router';
-import React, { useLayoutEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { useDispatch } from 'react-redux';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+
+type valueType = 'amount' | 'title' | 'date';
 
 const ManageExpenseScreen = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const [amount, setAmount] = useState('');
+  const [date, setDate] = useState('');
+  const [description, setDescription] = useState('');
+  const { expenses } = useSelector((state: RootState) => state.expenses);
+
+  const [isValid, setIsValid] = useState({
+    amount: true,
+    description: true,
+    date: true,
+  });
   const { mode, id } = useGlobalSearchParams<{
     mode: 'add' | 'edit';
     id?: string;
   }>();
-  const dispatch = useDispatch();
 
   const isEditing = mode === 'edit';
+  const toBeEdited = expenses.find((item) => item.id === id);
+  const isFormValid = isValid.amount && isValid.date && isValid.description;
+
+  // const handleSetInput = (valueKey: valueType, value: string) => {
+  //   setInputValues((curInput) => {
+  //     return { ...curInput, [valueKey]: value };
+  //   });
+  // };
+
+  useEffect(() => {
+    if (toBeEdited) {
+      setAmount(toBeEdited.amount.toString());
+      setDate(toBeEdited.date);
+      setDescription(toBeEdited.title);
+    }
+  }, [toBeEdited]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -23,30 +57,45 @@ const ManageExpenseScreen = () => {
     });
   }, [navigation, isEditing, id]);
 
-  const closeModal = () => {
-    navigation.goBack();
-  };
+  const closeModal = () => navigation.goBack();
 
-  const cancelHandler = () => {
-    closeModal();
-  };
+  const cancelHandler = () => closeModal();
 
-  const updateHandler = () => {
-    closeModal();
-    dispatch(
-      updateExpense({
-        id,
-        newExpense: {
-          title: 'Another bluetooth earbuds',
-          date: '2025-11-02',
-          amount: 200,
-        },
-      })
-    );
-  };
+  const submitHandler = () => {
+    const amountIsValid = !isNaN(+amount) && +amount > 0;
+    const dateIsValid = new Date(date).toString() !== 'Invalid Date';
+    const descriptionIsValid = description.trim().length > 0;
 
-  const addNewHandler = () => {
-    closeModal();
+    if (amountIsValid && dateIsValid && descriptionIsValid) {
+      if (isEditing) {
+        dispatch(
+          updateExpense({
+            id,
+            newExpense: {
+              title: description,
+              date,
+              amount: amount && +amount,
+            },
+          })
+        );
+      } else {
+        dispatch(
+          addExpense({
+            id: description + Math.floor(Math.random()),
+            date,
+            amount,
+            title: description,
+          })
+        );
+      }
+      closeModal();
+    } else {
+      setIsValid({
+        amount: amountIsValid,
+        date: dateIsValid,
+        description: descriptionIsValid,
+      });
+    }
   };
 
   const deleteHandler = () => {
@@ -56,14 +105,25 @@ const ManageExpenseScreen = () => {
 
   return (
     <View style={styles.container}>
+      <ExpenseForm
+        amount={amount}
+        setAmount={setAmount}
+        date={date}
+        setDate={setDate}
+        description={description}
+        setDescription={setDescription}
+        errors={isValid}
+      />
+      {isFormValid || (
+        <Text style={styles.errorText}>
+          Invalid input values - Please check entered data!
+        </Text>
+      )}
       <View style={styles.buttons}>
         <Button mode='flat' onPress={cancelHandler} style={styles.button}>
           Cancel
         </Button>
-        <Button
-          onPress={isEditing ? updateHandler : addNewHandler}
-          style={styles.button}
-        >
+        <Button onPress={submitHandler} style={styles.button}>
           {isEditing ? 'Update' : 'Add'}
         </Button>
       </View>
@@ -108,5 +168,15 @@ const styles = StyleSheet.create({
   button: {
     minWidth: 120,
     marginHorizontal: 8,
+  },
+
+  errorText: {
+    textAlign: 'center',
+    color: appColors.error500,
+    marginHorizontal: 8,
+    marginBottom: 20,
+
+    fontFamily: 'Roboto_500Medium',
+    fontSize: 16,
   },
 });
