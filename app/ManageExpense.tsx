@@ -2,16 +2,17 @@ import Button from '@/components/Button';
 import ExpenseForm from '@/components/expenseOutput/ExpenseForm';
 import IconButton from '@/components/IconButton';
 import {
-  addExpense,
-  removeExpense,
+  deleteExpense,
+  getExpenses,
+  postExpense,
   updateExpense,
-} from '@/store/redux/expenses';
-import { RootState } from '@/store/redux/store';
+} from '@/lib/api/api';
 import { appColors } from '@/utils/globalStyles';
+import { ExpenseProps } from '@/utils/UI.types';
 import { useGlobalSearchParams, useNavigation } from 'expo-router';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 type valueType = 'amount' | 'title' | 'date';
 
@@ -21,7 +22,16 @@ const ManageExpenseScreen = () => {
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState('');
   const [description, setDescription] = useState('');
-  const { expenses } = useSelector((state: RootState) => state.expenses);
+  const [expenses, setExpenses] = useState<ExpenseProps[]>([]);
+
+  useEffect(() => {
+    async function getData() {
+      const data = await getExpenses();
+      setExpenses(data);
+    }
+    getData();
+  }, []);
+  // const { expenses } = useSelector((state: RootState) => state.expenses);
 
   const [isValid, setIsValid] = useState({
     amount: true,
@@ -68,25 +78,35 @@ const ManageExpenseScreen = () => {
 
     if (amountIsValid && dateIsValid && descriptionIsValid) {
       if (isEditing) {
-        dispatch(
-          updateExpense({
-            id,
-            newExpense: {
-              title: description,
-              date,
-              amount: amount && +amount,
-            },
-          })
-        );
+        updateExpense(id!, {
+          amount: +amount,
+          date,
+          title: description,
+        });
+        // dispatch(
+        //   updateExpense({
+        //     id,
+        //     newExpense: {
+        //       title: description,
+        //       date,
+        //       amount: amount && +amount,
+        //     },
+        //   })
+        // );
       } else {
-        dispatch(
-          addExpense({
-            id: description + Math.floor(Math.random()),
-            date,
-            amount,
-            title: description,
-          })
-        );
+        postExpense({
+          date,
+          amount: +amount,
+          title: description,
+        });
+        // dispatch(
+        //   addExpense({
+        //     id: description + Math.floor(Math.random()),
+        //     date,
+        //     amount,
+        //     title: description,
+        //   })
+        // );
       }
       closeModal();
     } else {
@@ -99,7 +119,8 @@ const ManageExpenseScreen = () => {
   };
 
   const deleteHandler = () => {
-    dispatch(removeExpense({ id }));
+    deleteExpense(id!);
+    // dispatch(removeExpense({ id }));
     closeModal();
   };
 

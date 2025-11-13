@@ -1,13 +1,24 @@
 import ExpensesItem from '@/components/expenseOutput/ExpensesItem';
 import Summary from '@/components/expenseOutput/Summary';
-import { RootState } from '@/store/redux/store';
+import { getExpenses } from '@/lib/api/api';
 import { commonStyles } from '@/utils/globalStyles';
-import React from 'react';
+import { ExpenseProps } from '@/utils/UI.types';
+import React, { useEffect, useState } from 'react';
 import { FlatList, View } from 'react-native';
-import { useSelector } from 'react-redux';
 
 const AllExpensesScreen = () => {
-  const { expenses } = useSelector((state: RootState) => state.expenses);
+  // const { expenses } = useSelector((state: RootState) => state.expenses);
+
+  // getExpenses();
+  const [expenses, setExpenses] = useState<ExpenseProps[]>([]);
+
+  useEffect(() => {
+    async function getData() {
+      const data = await getExpenses();
+      setExpenses(data);
+    }
+    getData();
+  }, []);
 
   return (
     <View style={commonStyles.rootContainer}>
@@ -18,7 +29,7 @@ const AllExpensesScreen = () => {
       <FlatList
         data={expenses}
         renderItem={(itemData) => <ExpensesItem expense={itemData.item} />}
-        keyExtractor={(item) => item.id}
+        // keyExtractor={(item) => item.id}
         style={{ marginTop: 20 }}
         showsVerticalScrollIndicator={false}
       />

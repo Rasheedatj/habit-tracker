@@ -1,24 +1,47 @@
 import ExpenseOutput from '@/components/expenseOutput/ExpenseOutput';
-import { RootState } from '@/store/redux/store';
+import { getExpenses } from '@/lib/api/api';
 import { commonStyles } from '@/utils/globalStyles';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { useSelector } from 'react-redux';
+import { ExpenseProps } from '@/utils/UI.types';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+
+const isWithin7days = (date: string) => {
+  const formattedDate = new Date(date);
+  const today = new Date();
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(today.getDate() - 7);
+
+  return formattedDate >= sevenDaysAgo && formattedDate <= today;
+};
 
 const RecentScreen = () => {
-  const { expenses } = useSelector((state: RootState) => state.expenses);
-  const isWithin7days = (date: string) => {
-    const formattedDate = new Date(date);
-    const today = new Date();
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(today.getDate() - 7);
+  const [loading, setLoading] = useState(false);
+  // Local state
+  // const { expenses } = useSelector((state: RootState) => state.expenses);
 
-    return formattedDate >= sevenDaysAgo && formattedDate <= today;
-  };
+  const [expenses, setExpenses] = useState<ExpenseProps[]>([]);
+
+  useEffect(() => {
+    async function getData() {
+      setLoading(true);
+      const data = await getExpenses();
+      setExpenses(data);
+      setLoading(false);
+    }
+    getData();
+  }, []);
 
   const recentExpenses = expenses.filter(
     (item) => isWithin7days(item.date) === true
   );
+
+  if (loading)
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator size='large' color='white' />
+        {/* <Text style={styles.loadinText}>Loading...</Text> */}
+      </View>
+    );
 
   return (
     <View style={commonStyles.rootContainer}>
@@ -41,5 +64,18 @@ const styles = StyleSheet.create({
     marginTop: 30,
     fontSize: 16,
     fontWeight: 500,
+  },
+
+  loading: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#00000050',
+    // opacity: 0.5,
+  },
+
+  loadinText: {
+    fontSize: 24,
+    color: 'white',
   },
 });

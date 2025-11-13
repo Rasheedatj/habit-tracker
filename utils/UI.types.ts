@@ -1,5 +1,5 @@
 export interface ExpenseProps {
-  id: string;
+  id?: string;
   title: string;
   date: string;
   amount: number;
