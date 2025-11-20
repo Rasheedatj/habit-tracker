@@ -1,56 +1,69 @@
-import { store } from '@/store/redux/store';
-import { appColors } from '@/utils/globalStyles';
-import { Roboto_500Medium, useFonts } from '@expo-google-fonts/roboto';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import React, { useEffect } from 'react';
-import { Platform, StatusBar } from 'react-native';
-import { Provider } from 'react-redux';
-
-SplashScreen.preventAutoHideAsync();
+import { Colors } from '@/utils/globalStyles';
+import { Ionicons } from '@expo/vector-icons';
+import { Stack, useRouter } from 'expo-router';
+import React from 'react';
+import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 
 const RootLayout = () => {
-  const [loaded, error] = useFonts({
-    Roboto_500Medium,
-  });
-
-  useEffect(() => {
-    if (loaded || error) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded, error]);
-
-  if (!loaded && !error) {
-    return null;
-  }
+  const router = useRouter();
   return (
     <>
-      <StatusBar barStyle={'light-content'} />
-      <Provider store={store}>
-        <Stack>
-          <Stack.Screen
-            name='(tabs)'
-            options={{
-              headerShown: false,
-            }}
-          />
-
-          <Stack.Screen
-            name='ManageExpense'
-            options={{
-              title: 'Manage Expense',
-              headerTintColor: 'white',
-              presentation:
-                Platform.OS === 'ios' ? 'modal' : 'transparentModal',
-              headerStyle: {
-                backgroundColor: appColors.primary500,
-              },
-            }}
-          />
-        </Stack>
-      </Provider>
+      <StatusBar barStyle={'dark-content'} />
+      <Stack
+        screenOptions={{
+          contentStyle: {
+            backgroundColor: Colors.gray700,
+          },
+          headerStyle: { backgroundColor: Colors.primary500 },
+          headerTintColor: Colors.gray700,
+        }}
+      >
+        <Stack.Screen
+          name='index'
+          options={{
+            title: 'Your Favourite  Places',
+            headerRight: ({ tintColor }) => (
+              <TouchableOpacity
+                style={styles.headerRight}
+                onPress={() => router.push('/AddPlace')}
+              >
+                <Ionicons color={tintColor} name='add' size={24} />
+              </TouchableOpacity>
+            ),
+          }}
+        />
+        <Stack.Screen
+          name='AddPlace'
+          options={{
+            title: 'Add a new Place',
+            presentation: 'modal',
+          }}
+        />
+        {/* <Stack.Screen
+        name='Map'
+        options={{
+          title: 'Add Place',
+        }}
+      />
+      <Stack.Screen
+        name='PlaceDetails'
+        options={{
+          title: 'Add Place',
+        }}
+      /> */}
+      </Stack>
     </>
   );
 };
 
 export default RootLayout;
+
+const styles = StyleSheet.create({
+  headerRight: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
