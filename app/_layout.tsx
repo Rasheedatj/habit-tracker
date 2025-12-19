@@ -25,7 +25,7 @@ const RootLayout = () => {
             headerRight: ({ tintColor }) => (
               <TouchableOpacity
                 style={styles.headerRight}
-                onPress={() => router.push('/AddPlace')}
+                onPress={() => router.push('/')}
               >
                 <Ionicons color={tintColor} name='add' size={24} />
               </TouchableOpacity>
@@ -39,18 +39,18 @@ const RootLayout = () => {
             presentation: 'modal',
           }}
         />
-        {/* <Stack.Screen
-        name='Map'
-        options={{
-          title: 'Add Place',
-        }}
-      />
-      <Stack.Screen
-        name='PlaceDetails'
-        options={{
-          title: 'Add Place',
-        }}
-      /> */}
+        <Stack.Screen
+          name='Map'
+          options={{
+            title: 'Add Place',
+          }}
+        />
+        <Stack.Screen
+          name='PlaceDetails'
+          options={{
+            title: 'Add Place',
+          }}
+        />
       </Stack>
     </>
   );
